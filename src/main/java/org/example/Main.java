@@ -2,21 +2,18 @@ package org.example;
 
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.Unirest;
-
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
+import java.io.*;
 import java.util.Base64;
+import javax.sound.sampled.*;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, LineUnavailableException {
         HttpResponse<String> response = Unirest.post("https://shazam.p.rapidapi.com/songs/detect")
                 .header("content-type", "text/plain")
                 .header("X-RapidAPI-Key", "0bfb0321bbmsh8e25be16e31863dp15994cjsnc481a9a41b94")
                 .header("X-RapidAPI-Host", "shazam.p.rapidapi.com")
-                .body(soundFileParser("clinteastwood_portion_mono.raw"))
+                .body(micInputParser())
+//                .body(soundFileParser("clinteastwood_portion_mono.raw"))
                 .asString();
 
         // get title and author from response
@@ -35,5 +32,31 @@ public class Main {
         byte[] byteArray = input.readAllBytes();
         String base64Str = Base64.getEncoder().encodeToString(byteArray);
         return base64Str;
+    }
+
+    public static String micInputParser() throws LineUnavailableException {
+        byte[] data = getMicrophoneInput();
+        String base64Str = Base64.getEncoder().encodeToString(data);
+        return base64Str;
+    }
+
+    public static byte[] getMicrophoneInput() throws LineUnavailableException {
+        // set up mic
+        AudioFormat format = new AudioFormat(44100.0f, 16, 1, true, false);
+        TargetDataLine mic = AudioSystem.getTargetDataLine(format);
+
+        // set up byte[] to hold sound data
+        byte[] soundData = new byte[400000];
+
+        // read sound data from mic
+        mic.open(format);
+        System.out.println("Starting sound collection...");
+        mic.start();
+        mic.read(soundData, 0, soundData.length);
+        mic.stop();
+        System.out.println("Sound collection finished.");
+
+        // return sound data for parsing
+        return soundData;
     }
 }
