@@ -19,13 +19,14 @@ public class Main {
                 .body(soundFileParser("clinteastwood_portion_mono.raw"))
                 .asString();
 
-        // get title from response
+        // get title and author from response
         String body = response.getBody();
         String title = body.split("\"title\":")[1].split("\"")[1];
+        String author = body.split("trackartist}\":")[1].split("\"")[1];
 
         System.out.println(title);
+        System.out.println(author);
 
-//        System.out.println(response.getBody().charAt(titleIndex));
 //        System.out.println(response.getBody());
     }
 
