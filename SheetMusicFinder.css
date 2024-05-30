@@ -1,0 +1,43 @@
+:root {
+    --diameter: calc(min(100vw, 100vh) * 0.75);
+    --border: calc(var(--diameter) * 0.025);
+}
+
+body::-webkit-scrollbar {
+    display: none;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#mic-button {
+    /* positioning */
+    display: block;
+    margin: auto;
+    margin-top: 5rem;
+
+    /* size */
+    width: var(--diameter);
+    height: var(--diameter);
+
+    /* shape and color */
+    border-radius: calc(var(--diameter)/2);
+    background-color: blue;
+    border-color: aqua;
+    border-width: var(--border);
+
+    /* font */
+    color: black;
+    font-size: calc(var(--diameter)/5);
+}
+
+#mic-button:active {
+    color: cornflowerblue;
+}
+
+#caption {
+    width: 100vw;
+    text-align: center;
+    font-size: x-large;
+}
