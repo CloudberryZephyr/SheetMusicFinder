@@ -1,17 +1,9 @@
 let recorder;
 let audioContext;
-let leftChannel = [];
-let recordingLength = 0;
+let leftChannel;
+let recordingLength;
 
 const bufferSize = 2048;
-
-function dectobin(dec) {
-	for (var nFlag = 0, nShifted = dec, sMask = ''; nFlag < 32;
-		nFlag++, sMask += String(nShifted >>> 31), nShifted <<= 1);
-	return sMask;
-}
-
-
 
 function mergeBuffers(channelBuffer, recordingLength) {
 	let result = new Float32Array(recordingLength);
@@ -29,34 +21,30 @@ function mergeBuffers(channelBuffer, recordingLength) {
 
 
  function getAudioData() {
-	const PCM16iSamples = [];
-
 	return new Promise( function (resolve, reject) {
 		setTimeout( function() {
 			recorder.disconnect();
 			const PCM32fSamples = mergeBuffers(leftChannel, recordingLength);
+
+			let charArr = [];
 			
 			// format audio to pcm signed integer 16bit mono
 			for (let i = 0; i < PCM32fSamples.length; i++) {
 				let val = Math.floor(32767 * PCM32fSamples[i]);
 				val = Math.min(32767, val);
 				val = Math.max(-32768, val);
-				
-				PCM16iSamples.push(val);
-			}
 
-			let binVals = [];
+				let low = val & 255;
+				let high = (val & (255 << 8)) >> 8;
 
-			// convert integer values to binary
-			for (let i = 0; i < PCM16iSamples.length; i++) {
-				binVals.push(dectobin(PCM16iSamples[i]));
+				charArr.push(String.fromCharCode(low));
+				charArr.push(String.fromCharCode(high));
 			}
 
 			// convert audio to string for http api request
-			let chunkString = binVals.toString().replace(new RegExp(",", 'g'), "");
-			let base64Str = btoa(chunkString);
+			let base64Str = btoa(charArr.join(""));
 			resolve(base64Str)
-		}, 500);
+		}, 4000);
 
 	})
  }
@@ -73,9 +61,7 @@ async function getResponse() {
 		// make sure that getUserMedia is supported in the browser
 		if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {  
 			await navigator.mediaDevices.getUserMedia({audio : true})
-				.then( async function(stream) { 
-					// // set up mediaRecorder
-					// mediaRecorder = new MediaRecorder(stream);
+				.then( async function(stream) {
 
 					let audioStream = stream;
 
