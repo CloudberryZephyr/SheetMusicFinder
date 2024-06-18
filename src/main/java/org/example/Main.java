@@ -23,15 +23,6 @@ public class Main {
 
         System.out.println(title);
         System.out.println(author);
-
-//        System.out.println(response.getBody());
-    }
-
-    public static String soundFileParser(String rawFileName) throws IOException {
-        FileInputStream input = new FileInputStream(rawFileName);
-        byte[] byteArray = input.readAllBytes();
-        String base64Str = Base64.getEncoder().encodeToString(byteArray);
-        return base64Str;
     }
 
     public static String micInputParser() throws LineUnavailableException {
