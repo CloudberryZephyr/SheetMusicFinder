@@ -165,7 +165,7 @@ function redirect() {
 // for testing with canned data
 function testCanned() {
 	fetch("gooddata.raw")
-	.then((data) => res.text())
+	.then((result) => result.text())
 	.then( async (data) => {
 		// do something with "text"
 		const url = 'https://shazam.p.rapidapi.com/songs/v2/detect';
