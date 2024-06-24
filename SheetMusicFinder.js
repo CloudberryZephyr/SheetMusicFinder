@@ -70,7 +70,7 @@ async function getResponse() {
 
 					// creates the an instance of audioContext
 					const context = window.AudioContext || window.webkitAudioContext;
-					audioContext = new context();
+					audioContext = new AudioContext({sampleRate: 44100});
 
 					// creates a gain node
 					const volume = audioContext.createGain();
