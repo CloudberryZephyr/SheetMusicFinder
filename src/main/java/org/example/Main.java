@@ -3,7 +3,9 @@ package org.example;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.Unirest;
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.Base64;
+import java.util.Scanner;
 import javax.sound.sampled.*;
 
 public class Main {
@@ -12,8 +14,8 @@ public class Main {
                 .header("content-type", "text/plain")
                 .header("X-RapidAPI-Key", "0bfb0321bbmsh8e25be16e31863dp15994cjsnc481a9a41b94")
                 .header("X-RapidAPI-Host", "shazam.p.rapidapi.com")
-                .body(micInputParser())
-//                .body(soundFileParser("clinteastwood_portion_mono.raw"))
+                //.body(micInputParser())
+                .body(cannedParser("gooddata.raw"))
                 .asString();
 
         // get title and author from response
@@ -25,7 +27,26 @@ public class Main {
         System.out.println(author);
     }
 
-    public static String micInputParser() throws LineUnavailableException {
+    public static String soundFileParser(String rawFileName) throws IOException {
+        FileInputStream input = new FileInputStream(rawFileName);
+        byte[] byteArray = input.readAllBytes();
+        String base64Str = Base64.getEncoder().encodeToString(byteArray);
+        return base64Str;
+    }
+
+    /**
+     * Use for testing only
+     * @param cannedFileName
+     * @return
+     * @throws IOException
+     */
+    public static String cannedParser(String cannedFileName) throws IOException {
+        Scanner scan = new Scanner(Paths.get(cannedFileName));
+        String base64Str = scan.next();
+        return base64Str;
+    }
+
+    public static String micInputParser() throws LineUnavailableException, IOException {
         byte[] data = getMicrophoneInput();
         String base64Str = Base64.getEncoder().encodeToString(data);
         return base64Str;
