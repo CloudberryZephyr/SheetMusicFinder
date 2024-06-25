@@ -10,7 +10,7 @@ const bufferSize = 2048;
 function mergeBuffers(channelBuffer, recordingLength) {
 	let result = new Float32Array(recordingLength);
 	let offset = 0;
-  
+
 	for (let i = 0; i < channelBuffer.length; i++)
 	{
 		result.set(channelBuffer[i], offset);
@@ -80,17 +80,6 @@ async function getResponse() {
 					const context = window.AudioContext || window.webkitAudioContext;
 					audioContext = new context({sampleRate: 44100});
 
-					// get processor module
-					await audioContext.audioWorklet.addModule("./linear-pcm-processor.js");
-					recorder = new AudioWorkletNode(audioContext, "linear-pcm-processor");
-
-					// this will push the data returned from linear-pcm-processor process()
-					// this data is an array of ASCII chars
-					recorder.port.onmessage = (e) => {chunks.push(e.data)}
-
-					/*
-						Deprecated code
-
 					// creates an audio node from the microphone incoming stream
 					const audioInput = audioContext.createMediaStreamSource(audioStream);
 
@@ -100,11 +89,23 @@ async function getResponse() {
 					// connect the stream to the gain node
 					audioInput.connect(volume);
 
-					// get recorder
-					recorder = audioContext.createScriptProcessor.call(audioContext, bufferSize, 1, 1);
+					// get processor module
+					await audioContext.audioWorklet.addModule("./linear-pcm-processor.js");
+					recorder = new AudioWorkletNode(audioContext, "linear-pcm-processor");
 
 					// we connect the recorder
 					volume.connect(recorder);
+					
+					// this will push the data returned from linear-pcm-processor process()
+					// this data is an array of ASCII chars
+					recorder.port.onmessage = (e) => {chunks.push(e.data)}
+
+					/*
+						Deprecated code
+
+					// get recorder
+					recorder = audioContext.createScriptProcessor.call(audioContext, bufferSize, 1, 1);
+
 
 					// add event listener for when the recorder has data
 					recorder.onaudioprocess = function(event){
