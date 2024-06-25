@@ -3,6 +3,7 @@ let audioContext;
 let leftChannel;
 let recordingLength;
 let searchTerm = "";
+let chunks = [];
 
 const bufferSize = 2048;
 
@@ -25,25 +26,31 @@ function getAudioData() {
 	return new Promise( function (resolve, reject) {
 		setTimeout( function() {
 			recorder.disconnect();
-			const PCM32fSamples = mergeBuffers(leftChannel, recordingLength);
 
-			let charArr = [];
+			/*
+				Deprecated code
+
+			// const PCM32fSamples = mergeBuffers(leftChannel, recordingLength);
+
+			// let charArr = [];
 			
-			// format audio to pcm signed integer 16bit mono
-			for (let i = 0; i < PCM32fSamples.length; i++) {
-				let val = Math.floor(32767 * PCM32fSamples[i]);
-				val = Math.min(32767, val);
-				val = Math.max(-32768, val);
+			// // format audio to pcm signed integer 16bit mono
+			// for (let i = 0; i < PCM32fSamples.length; i++) {
+			// 	let val = Math.floor(32767 * PCM32fSamples[i]);
+			// 	val = Math.min(32767, val);
+			// 	val = Math.max(-32768, val);
 
-				let low = val & 255;
-				let high = (val & (255 << 8)) >> 8;
+			// 	let low = val & 255;
+			// 	let high = (val & (255 << 8)) >> 8;
 
-				charArr.push(String.fromCharCode(low));
-				charArr.push(String.fromCharCode(high));
-			}
+			// 	charArr.push(String.fromCharCode(low));
+			// 	charArr.push(String.fromCharCode(high));
+			// }
+
+			*/
 
 			// convert audio to string for http api request
-			let base64Str = btoa(charArr.join(""));
+			let base64Str = btoa(chunks.join(""));
 
 			// resolve promise
 			resolve(base64Str)
@@ -58,6 +65,7 @@ async function getResponse() {
 	// reset data-specific global variables
 	leftChannel = [];
 	recordingLength = 0;
+	chunks = [];
 
 	// only get the recorder if we haven't set it before
 	if (recorder == null) {
@@ -70,22 +78,35 @@ async function getResponse() {
 
 					// creates the an instance of audioContext
 					const context = window.AudioContext || window.webkitAudioContext;
-					audioContext = new AudioContext({sampleRate: 44100});
+					audioContext = new context({sampleRate: 44100});
 
-					// creates a gain node
-					const volume = audioContext.createGain();
+					// get processor module
+					await audioContext.audioWorklet.addModule("./linear-pcm-processor.js");
+					recorder = new AudioWorkletNode(audioContext, "linear-pcm-processor");
+
+					// this will push the data returned from linear-pcm-processor process()
+					// this data is an array of ASCII chars
+					recorder.port.onmessage = (e) => {chunks.push(e.data)}
+
+					/*
+						Deprecated code
 
 					// creates an audio node from the microphone incoming stream
 					const audioInput = audioContext.createMediaStreamSource(audioStream);
 
+					// creates a gain node
+					const volume = audioContext.createGain();
+
 					// connect the stream to the gain node
 					audioInput.connect(volume);
 
+					// get recorder
 					recorder = audioContext.createScriptProcessor.call(audioContext, bufferSize, 1, 1);
 
 					// we connect the recorder
 					volume.connect(recorder);
 
+					// add event listener for when the recorder has data
 					recorder.onaudioprocess = function(event){
 						const samples = event.inputBuffer.getChannelData(0);
 				
@@ -94,7 +115,11 @@ async function getResponse() {
 				
 						recordingLength += bufferSize;
 					};
-					
+
+					*/
+
+
+
 					
 				})
 				.catch( (err) => {console.error(`getUserMedia error: ${err}`);} );
