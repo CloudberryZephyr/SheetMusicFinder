@@ -26,7 +26,7 @@ class LinearPCMProcessor extends AudioWorkletProcessor {
 
             this.buffer[i] = val;
         }
-
+ 
         // // transform buff contents to ASCII char array in buffer and flush the buffer
         // for (let i = 0; i < buff.length; i++) {
         //     let low = buff[i] & 255;
