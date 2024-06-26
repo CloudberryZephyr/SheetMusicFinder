@@ -18,28 +18,20 @@ class LinearPCMProcessor extends AudioWorkletProcessor {
 
         const input = inputList[0][0]; // first channel of first input
 
+        // convert from pcm 32 to pcm 16
         for (let i = 0; i < input.length; i++) {
-            this.buffer[i] = input[i];
+            const sample = Math.max(-1, Math.min(1, input[i]));  // normalize value to between -1 and 1
+            buff[i + this.offset] = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
         }
 
-        // let buff = new Int16Array(LinearPCMProcessor.BUFFER_SIZE/2);
+        // // transform buff contents to ASCII char array in buffer and flush the buffer
+        // for (let i = 0; i < buff.length; i++) {
+        //     let low = buff[i] & 255;
+        //     let high = (buff[i] & (255 << 8)) >> 8;
 
-        // for (let i = 0; i < input.length; i++) {
-        //     const sample = Math.max(-1, Math.min(1, input[i]));  // normalize value to between -1 and 1
-        //     buff[i + this.offset] =
-        //     sample < 0 ? sample * 0x8000 : sample * 0x7fff;
+        //     this.buffer.push(String.fromCharCode(low));
+        //     this.buffer.push(String.fromCharCode(high));
         // }
-        // this.offset += input.length;
-
-        // Once the buffer is filled entirely, transform to ASCII char array in buffer and flush the buffer
-
-            // for (let i = 0; i < buff.length; i++) {
-            //     let low = buff[i] & 255;
-            //     let high = (buff[i] & (255 << 8)) >> 8;
-
-            //     this.buffer.push(String.fromCharCode(low));
-            //     this.buffer.push(String.fromCharCode(high));
-            // }
             
         this.port.postMessage(this.buffer);
         return true;
