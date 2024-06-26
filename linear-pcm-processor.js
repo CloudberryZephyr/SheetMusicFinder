@@ -21,7 +21,7 @@ class LinearPCMProcessor extends AudioWorkletProcessor {
         // convert from pcm 32 to pcm 16
         for (let i = 0; i < input.length; i++) {
             const sample = Math.max(-1, Math.min(1, input[i]));  // normalize value to between -1 and 1
-            this.buffer[i] = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
+            this.buffer[i] = sample < 0 ? sample * 0x8000 : sample * 0x7fff; 
         }
 
         // // transform buff contents to ASCII char array in buffer and flush the buffer
