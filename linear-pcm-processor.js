@@ -1,15 +1,10 @@
-// linear-pcm-processor.js (must be in its own file!)
 class LinearPCMProcessor extends AudioWorkletProcessor {
-    // The size of the buffer. Must be a multiple of 128 (the number of frames in the
-    // input channel). An audio block is posted to the main thread every time the
-    // buffer is full, which means a large buffer will emit less frequently (higher
-    // latency), but more efficiently (fewer I/O interruptions between the worker and
-    // the main thread)
+
     static BUFFER_SIZE = 2048;
   
     constructor() {
         super();
-        this.buffer = []; 
+        this.buffer = [];
         this.offset = 0;
     }
   
