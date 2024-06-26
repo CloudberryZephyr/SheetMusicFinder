@@ -222,8 +222,8 @@ function testCanned() {
 document.addEventListener("DOMContentLoaded", () => {
 	// set up audio sample trigger
 	const sensebtn = document.getElementById("mic-button");
-	sensebtn.addEventListener("click", getResponse)
-	//sensebtn.addEventListener("click", testCanned)
+	sensebtn.addEventListener("click", getResponse);
+	//sensebtn.addEventListener("click", testCanned);
 
 	// set up musecore search button
 	const searchbtn = document.getElementById("search-button");
