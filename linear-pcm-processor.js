@@ -5,7 +5,6 @@ class LinearPCMProcessor extends AudioWorkletProcessor {
     constructor() {
         super();
         this.buffer = [];
-        this.offset = 0;
     }
   
     /**
@@ -20,7 +19,7 @@ class LinearPCMProcessor extends AudioWorkletProcessor {
         const input = inputList[0][0]; // first channel of first input
 
         for (let i = 0; i < input.length; i++) {
-            this.buffer[i + this.offset] = input[i];
+            this.buffer[i] = input[i];
         }
 
         // let buff = new Int16Array(LinearPCMProcessor.BUFFER_SIZE/2);
@@ -33,7 +32,6 @@ class LinearPCMProcessor extends AudioWorkletProcessor {
         // this.offset += input.length;
 
         // Once the buffer is filled entirely, transform to ASCII char array in buffer and flush the buffer
-        if (this.offset >= LinearPCMProcessor.BUFFER_SIZE - 1) {
 
             // for (let i = 0; i < buff.length; i++) {
             //     let low = buff[i] & 255;
@@ -43,18 +41,8 @@ class LinearPCMProcessor extends AudioWorkletProcessor {
             //     this.buffer.push(String.fromCharCode(high));
             // }
             
-            this.flush();
-        }
+        this.port.postMessage(this.buffer);
         return true;
-    }
-  
-    /**
-     * Sends the buffer's content to the main thread via postMessage(), and reset
-     * the offset to 0
-     */
-    flush() {
-      this.offset = 0;
-      this.port.postMessage(this.buffer);
     }
   }
   
