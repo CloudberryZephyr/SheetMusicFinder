@@ -18,24 +18,21 @@ class LinearPCMProcessor extends AudioWorkletProcessor {
 
         const input = inputList[0][0]; // first channel of first input
 
-        // convert from pcm 32 to pcm 16
+        
         for (let i = 0; i < input.length; i++) {
+            // convert from pcm 32 to pcm 16
             let val = Math.floor(32767 * input[i]);
             val = Math.min(32767, val);
             val = Math.max(-32768, val);
 
-            this.buffer[i] = val;
+            // transform to ASCII char
+            let low = val & 255;
+            let high = (val & (255 << 8)) >> 8;
+
+            this.buffer.push(String.fromCharCode(low));
+            this.buffer.push(String.fromCharCode(high));
         }
  
-        // // transform buff contents to ASCII char array in buffer and flush the buffer
-        // for (let i = 0; i < buff.length; i++) {
-        //     let low = buff[i] & 255;
-        //     let high = (buff[i] & (255 << 8)) >> 8;
-
-        //     this.buffer.push(String.fromCharCode(low));
-        //     this.buffer.push(String.fromCharCode(high));
-        // }
-            
         this.port.postMessage(this.buffer);
         return true;
     }
