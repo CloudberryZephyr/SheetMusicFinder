@@ -33,7 +33,7 @@ class LinearPCMProcessor extends AudioWorkletProcessor {
         // this.offset += input.length;
 
         // Once the buffer is filled entirely, transform to ASCII char array in buffer and flush the buffer
-        if (this.offset >= BUFFER_SIZE - 1) { 
+        if (this.offset >= LinearPCMProcessor.BUFFER_SIZE - 1) { 
 
             // for (let i = 0; i < buff.length; i++) {
             //     let low = buff[i] & 255;
