@@ -1,6 +1,6 @@
 class LinearPCMProcessor extends AudioWorkletProcessor {
 
-    static BUFFER_SIZE = 2048;
+    static BUFFER_SIZE = 1024;
   
     constructor() {
         super();
