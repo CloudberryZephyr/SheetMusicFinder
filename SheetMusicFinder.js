@@ -65,7 +65,6 @@ async function getResponse() {
 		}
 	}
 
-
 	// begin recording
 	recorder.connect(audioContext.destination);
 
