@@ -26,6 +26,7 @@ function getAudioData() {
 	return new Promise( function (resolve, reject) {
 		setTimeout( function() {
 			recorder.disconnect();
+			audioContext.suspend();
 
 			/*
 				Deprecated code
@@ -128,6 +129,8 @@ async function getResponse() {
 		} else {
 			console.log("getUserMedia not supported on this browser");
 		}
+	} else {
+		audioContext.resume();
 	}
 
 
