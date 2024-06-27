@@ -4,7 +4,6 @@ class LinearPCMProcessor extends AudioWorkletProcessor {
   
     constructor() {
         super();
-        this.buffer = [];
     }
   
     /**
@@ -15,7 +14,7 @@ class LinearPCMProcessor extends AudioWorkletProcessor {
     process(inputList, _outputList, _parameters) {
         // Assumes the input is mono (1 channel). If there are more channels, they
         // are ignored
-
+        let buffer = [];
         const input = inputList[0][0]; // first channel of first input
 
         
@@ -25,7 +24,7 @@ class LinearPCMProcessor extends AudioWorkletProcessor {
             val = Math.min(32767, val);
             val = Math.max(-32768, val);
 
-            this.buffer.push(val);
+            buffer.push(val);
 
             // // transform to ASCII char
             // let low = val & 255;
@@ -35,7 +34,7 @@ class LinearPCMProcessor extends AudioWorkletProcessor {
             // this.buffer.push(String.fromCharCode(high));
         }
  
-        this.port.postMessage(this.buffer);
+        this.port.postMessage(buffer);
         return true;
     }
   }
