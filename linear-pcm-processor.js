@@ -24,14 +24,12 @@ class LinearPCMProcessor extends AudioWorkletProcessor {
             val = Math.min(32767, val);
             val = Math.max(-32768, val);
 
-            buffer.push(val);
-
             // transform to ASCII char
             let low = val & 255;
             let high = (val & (255 << 8)) >> 8;
 
-            this.buffer.push(String.fromCharCode(low));
-            this.buffer.push(String.fromCharCode(high));
+            buffer.push(String.fromCharCode(low));
+            buffer.push(String.fromCharCode(high));
         }
  
         this.port.postMessage(buffer);
