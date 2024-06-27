@@ -7,9 +7,8 @@ class LinearPCMProcessor extends AudioWorkletProcessor {
     }
   
     /**
-     * Converts input data from Float32Array to Int16Array, and stores it to
-     * to the buffer. When the buffer is full, its content is posted to the main
-     * thread, and the buffer is emptied
+     * Converts input data from Float32Array to an array of ASCII characters, and
+     * sends it in a message to the main thread.
      */
     process(inputList, _outputList, _parameters) {
         // Assumes the input is mono (1 channel). If there are more channels, they
