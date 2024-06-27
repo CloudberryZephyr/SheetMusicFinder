@@ -99,7 +99,7 @@ async function getResponse() {
 					
 					// this will push the data returned from linear-pcm-processor process()
 					// this data is an array of ASCII chars
-					recorder.port.onmessage = (e) => {chunks.push(e.data)}
+					recorder.port.onmessage = (e) => {chunks.push(...(e.data))}
 
 					/*
 						Deprecated code
