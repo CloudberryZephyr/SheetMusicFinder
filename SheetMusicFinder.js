@@ -1,54 +1,12 @@
 let recorder;
 let audioContext;
-let leftChannel;
-let recordingLength;
 let searchTerm = "";
 let chunks = [];
-
-const bufferSize = 2048;
-
-function mergeBuffers(channelBuffer, recordingLength) {
-	let result = new Float32Array(recordingLength);
-	let offset = 0;
-
-	for (let i = 0; i < channelBuffer.length; i++)
-	{
-		result.set(channelBuffer[i], offset);
-		offset += channelBuffer[i].length;
-	}
-  
-	return Array.prototype.slice.call(result);
-}
-
-
 
 function getAudioData() {
 	return new Promise( function (resolve, reject) {
 		setTimeout( function() {
 			recorder.disconnect();
-			//audioContext.suspend();
-
-			/*
-				Deprecated code
-
-			// const PCM32fSamples = mergeBuffers(leftChannel, recordingLength);
-
-			// let charArr = [];
-			
-			// // format audio to pcm signed integer 16bit mono
-			// for (let i = 0; i < PCM32fSamples.length; i++) {
-			// 	let val = Math.floor(32767 * PCM32fSamples[i]);
-			// 	val = Math.min(32767, val);
-			// 	val = Math.max(-32768, val);
-
-			// 	let low = val & 255;
-			// 	let high = (val & (255 << 8)) >> 8;
-
-			// 	charArr.push(String.fromCharCode(low));
-			// 	charArr.push(String.fromCharCode(high));
-			// }
-
-			*/
 
 			// convert audio to string for http api request
 			let base64Str = btoa(chunks.join(""));
@@ -63,9 +21,7 @@ function getAudioData() {
 
 
 async function getResponse() {
-	// reset data-specific global variables
-	leftChannel = [];
-	recordingLength = 0;
+	// reset data-specific global variable
 	chunks = [];
 
 	// only get the recorder if we haven't set it before
@@ -100,28 +56,6 @@ async function getResponse() {
 					// this will push the data returned from linear-pcm-processor process()
 					// this data is an array of ASCII chars
 					recorder.port.onmessage = (e) => {chunks.push(...(e.data))}
-
-					/*
-						Deprecated code
-
-					// get recorder
-					recorder = audioContext.createScriptProcessor.call(audioContext, bufferSize, 1, 1);
-
-
-					// add event listener for when the recorder has data
-					recorder.onaudioprocess = function(event){
-						const samples = event.inputBuffer.getChannelData(0);
-				
-						// we clone the samples
-						leftChannel.push(new Float32Array(samples));
-				
-						recordingLength += bufferSize;
-					};
-
-					*/
-
-
-
 					
 				})
 				.catch( (err) => {console.error(`getUserMedia error: ${err}`);} );
@@ -129,8 +63,6 @@ async function getResponse() {
 		} else {
 			console.log("getUserMedia not supported on this browser");
 		}
-	} else {
-		//audioContext.resume();
 	}
 
 
