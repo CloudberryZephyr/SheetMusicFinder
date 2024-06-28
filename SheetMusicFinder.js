@@ -24,25 +24,25 @@ function getAudioData() {
 		setTimeout( function() {
 			recorder.disconnect();
 
-			const PCM32fSamples = mergeBuffers(chunks, recordingLength);
+			// const PCM32fSamples = mergeBuffers(chunks, recordingLength);
 
-			let charArr = [];
+			// let charArr = [];
 			
-			// format audio to pcm signed integer 16bit mono
-			for (let i = 0; i < PCM32fSamples.length; i++) {
-				let val = Math.floor(32767 * PCM32fSamples[i]);
-				val = Math.min(32767, val);
-				val = Math.max(-32768, val);
+			// // format audio to pcm signed integer 16bit mono
+			// for (let i = 0; i < PCM32fSamples.length; i++) {
+			// 	let val = Math.floor(32767 * PCM32fSamples[i]);
+			// 	val = Math.min(32767, val);
+			// 	val = Math.max(-32768, val);
 
-				let low = val & 255;
-				let high = (val & (255 << 8)) >> 8;
+			// 	let low = val & 255;
+			// 	let high = (val & (255 << 8)) >> 8;
 
-				charArr.push(String.fromCharCode(low));
-				charArr.push(String.fromCharCode(high));
-			}
+			// 	charArr.push(String.fromCharCode(low));
+			// 	charArr.push(String.fromCharCode(high));
+			// }
 
-			// convert audio to string for http api request
-			let base64Str = btoa(chunks.join(""));
+			// // convert audio to string for http api request
+			// let base64Str = btoa(chunks.join(""));
 
 			// resolve promise
 			resolve(base64Str)
