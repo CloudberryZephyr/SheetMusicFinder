@@ -24,7 +24,7 @@ function getAudioData() {
 		setTimeout( function() {
 			recorder.disconnect();
 
-			// const PCM32fSamples = mergeBuffers(chunks, recordingLength);
+			const PCM32fSamples = mergeBuffers(chunks, recordingLength);
 
 			// let charArr = [];
 			
