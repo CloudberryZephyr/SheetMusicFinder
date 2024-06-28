@@ -34,13 +34,11 @@ function getAudioData() {
 				val = Math.min(32767, val);
 				val = Math.max(-32768, val);
 
-				charArr.push(val);
+				let low = val & 255;
+				let high = (val & (255 << 8)) >> 8;
 
-			// 	let low = val & 255;
-			// 	let high = (val & (255 << 8)) >> 8;
-
-			// 	charArr.push(String.fromCharCode(low));
-			// 	charArr.push(String.fromCharCode(high));
+				charArr.push(String.fromCharCode(low));
+				charArr.push(String.fromCharCode(high));
 			}
 
 			// // convert audio to string for http api request
