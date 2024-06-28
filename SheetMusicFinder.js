@@ -41,8 +41,8 @@ function getAudioData() {
 				charArr.push(String.fromCharCode(high));
 			}
 
-			// // convert audio to string for http api request
-			// let base64Str = btoa(chunks.join(""));
+			// convert audio to string for http api request
+			let base64Str = btoa(chunks.join(""));
 
 			// resolve promise
 			resolve(base64Str)
