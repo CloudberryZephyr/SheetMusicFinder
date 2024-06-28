@@ -46,7 +46,7 @@ function getAudioData() {
 
 			// resolve promise
 			resolve(base64Str)
-		}, 4000);
+		}, 3500);
 
 	})
 }
