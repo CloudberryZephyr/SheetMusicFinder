@@ -1,11 +1,8 @@
 let recorder;
 let audioContext;
-let leftChannel;
 let recordingLength;
 let searchTerm = "";
 let chunks = [];
-
-const bufferSize = 2048;
 
 function mergeBuffers(channelBuffer, recordingLength) {
 	let result = new Float32Array(recordingLength);
@@ -27,10 +24,7 @@ function getAudioData() {
 		setTimeout( function() {
 			recorder.disconnect();
 
-			/*
-				Deprecated code
-
-			// const PCM32fSamples = mergeBuffers(leftChannel, recordingLength);
+			const PCM32fSamples = mergeBuffers(chunks, recordingLength);
 
 			// let charArr = [];
 			
@@ -47,14 +41,12 @@ function getAudioData() {
 			// 	charArr.push(String.fromCharCode(high));
 			// }
 
-			*/
-
 			// convert audio to string for http api request
-			let base64Str = btoa(chunks.join(""));
+			let base64Str = btoa(PCM32fSamples.join(""));
 
 			// resolve promise
-			resolve(base64Str)
-		}, 4000);
+			resolve(base64Str);
+		}, 3500);
 
 	})
 }
@@ -98,7 +90,11 @@ async function getResponse() {
 					
 					// this will push the data returned from linear-pcm-processor process()
 					// this data is an array of ASCII chars
-					recorder.port.onmessage = (e) => {chunks.push(e.data)}
+					recorder.port.onmessage = (e) => {
+						const samples = new Float32Array(e.data);
+						chunks.push(samples); 
+						recordingLength += samples.length;
+					}
 
 					/*
 						Deprecated code
@@ -190,9 +186,29 @@ function redirect() {
 
 // for testing with canned data
 function testCanned() {
-	fetch("gooddata.raw")
+	fetch("badData.txt")
 	.then((result) => result.text())
 	.then( async (data) => {
+		let dataArr = data.split(",\n");
+
+		let arr = [];
+
+		// format audio to pcm signed integer 16bit mono
+		for (let i = 0; i < dataArr.length; i++) {
+			let val = Math.floor(32767 * parseFloat(dataArr[i]));
+			val = Math.min(32767, val);
+			val = Math.max(-32768, val);
+
+			let low = val & 255;
+			let high = (val & (255 << 8)) >> 8;
+
+			arr.push(String.fromCharCode(low));
+			arr.push(String.fromCharCode(high));
+		}
+
+		// convert audio to string for http api request
+		let base64Str = btoa(arr.join(""));
+
 		// do something with "text"
 		const url = 'https://shazam.p.rapidapi.com/songs/v2/detect';
 		const options = {
@@ -202,7 +218,7 @@ function testCanned() {
 				'X-RapidAPI-Key': '0bfb0321bbmsh8e25be16e31863dp15994cjsnc481a9a41b94',
 				'X-RapidAPI-Host': 'shazam.p.rapidapi.com'
 			},
-			body: data
+			body: base64Str
 		};
 
 		try {
