@@ -110,6 +110,7 @@ async function getResponse() {
 						recordingLength += 2048;
 					};
 					
+					
 				})
 				.catch( (err) => {console.error(`getUserMedia error: ${err}`);} );
 		
