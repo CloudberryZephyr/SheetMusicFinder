@@ -91,8 +91,9 @@ async function getResponse() {
 					// this will push the data returned from linear-pcm-processor process()
 					// this data is an array of ASCII chars
 					recorder.port.onmessage = (e) => {
-						chunks.push(new Float32Array(e.data)); 
-						recordingLength += e.data.length;
+						const samples = new Float32Array(e.data);
+						chunks.push(samples); 
+						recordingLength += samples.length;
 					}
 
 					/*
