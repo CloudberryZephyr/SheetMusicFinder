@@ -10,7 +10,7 @@ class LinearPCMProcessor extends AudioWorkletProcessor {
      */
     process(inputList, _outputList, _parameters) {
 
-        let buffer = [];
+        // let buffer = [];
 
         const input = inputList[0][0]; // first channel of first input
 
