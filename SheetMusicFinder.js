@@ -97,7 +97,7 @@ async function getResponse() {
 					// }
 
 					// get recorder
-					recorder = audioContext.createScriptProcessor.call(audioContext, bufferSize, 1, 1);
+					recorder = audioContext.createScriptProcessor.call(audioContext, 2048, 1, 1);
 
 
 					// add event listener for when the recorder has data
@@ -107,7 +107,7 @@ async function getResponse() {
 						// we clone the samples
 						leftChannel.push(new Float32Array(samples));
 				
-						recordingLength += bufferSize;
+						recordingLength += 2048;
 					};
 					
 				})
