@@ -3,6 +3,9 @@ let audioContext;
 let recordingLength;
 let searchTerm = "";
 let chunks = [];
+let leftChannel;
+
+const bufferSize = 2048;
 
 function mergeBuffers(channelBuffer, recordingLength) {
 	let result = new Float32Array(recordingLength);
@@ -17,15 +20,11 @@ function mergeBuffers(channelBuffer, recordingLength) {
 	return Array.prototype.slice.call(result);
 }
 
-
-
 function getAudioData() {
 	return new Promise( function (resolve, reject) {
 		setTimeout( function() {
 			recorder.disconnect();
-
-			const PCM32fSamples = mergeBuffers(chunks, recordingLength);
-
+			const PCM32fSamples = mergeBuffers(leftChannel, recordingLength);
 			let charArr = [];
 			
 			// format audio to pcm signed integer 16bit mono
@@ -40,46 +39,90 @@ function getAudioData() {
 				charArr.push(String.fromCharCode(low));
 				charArr.push(String.fromCharCode(high));
 			}
-
 			// convert audio to string for http api request
-			let base64Str = btoa(PCM32fSamples.join(""));
-
+			let base64Str = btoa(charArr.join(""));
 			// resolve promise
-			resolve(base64Str);
-		}, 3500);
-
+			resolve(base64Str)
+		}, 4000);
 	})
 }
-
-
 
 async function getResponse() {
 	// reset data-specific global variables
 	leftChannel = [];
 	recordingLength = 0;
-	chunks = [];
-
 	// only get the recorder if we haven't set it before
 	if (recorder == null) {
 		// make sure that getUserMedia is supported in the browser
 		if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {  
 			await navigator.mediaDevices.getUserMedia({audio : true})
 				.then( async function(stream) {
-
 					let audioStream = stream;
 
 					// creates the an instance of audioContext
 					const context = window.AudioContext || window.webkitAudioContext;
-					audioContext = new context({sampleRate: 44100});
-
-					// creates an audio node from the microphone incoming stream
-					const audioInput = audioContext.createMediaStreamSource(audioStream);
+					audioContext = new AudioContext({sampleRate: 44100});
 
 					// creates a gain node
 					const volume = audioContext.createGain();
-
+					// creates an audio node from the microphone incoming stream
+					const audioInput = audioContext.createMediaStreamSource(audioStream);
 					// connect the stream to the gain node
 					audioInput.connect(volume);
+					recorder = audioContext.createScriptProcessor.call(audioContext, bufferSize, 1, 1);
+					// we connect the recorder
+					volume.connect(recorder);
+					recorder.onaudioprocess = function(event){
+						const samples = event.inputBuffer.getChannelData(0);
+				
+						// we clone the samples
+						leftChannel.push(new Float32Array(samples));
+				
+						recordingLength += bufferSize;
+					};
+					
+					
+				})
+				.catch( (err) => {console.error(`getUserMedia error: ${err}`);} );
+		
+		} else {
+			console.log("getUserMedia not supported on this browser");
+		}
+	}
+	// begin recording
+	recorder.connect(audioContext.destination);
+	getAudioData().then( async function (base64Str) {
+		// set up API call
+		const url = 'https://shazam.p.rapidapi.com/songs/v2/detect';
+		const options = {
+			method: 'POST',
+			headers: {
+				'content-type': 'text/plain',
+				'X-RapidAPI-Key': '0bfb0321bbmsh8e25be16e31863dp15994cjsnc481a9a41b94',
+				'X-RapidAPI-Host': 'shazam.p.rapidapi.com'
+			},
+			body: base64Str
+		};
+		try {
+			const response = await fetch(url, options);
+			const result = await response.text();
+		
+			console.log(result);
+			const searchLabel = document.getElementById("p1");
+			if (result.includes("\"matches\":[]")) {
+				searchLabel.textContent = "Audio not recognized.  Please retry."
+				searchTerm = "";
+			} else {
+				const artist = result.split("trackartist}\":")[1].split("\"")[1];
+				const title = result.split("\"title\":")[1].split("\"")[1];
+				searchTerm = title + " " + artist;
+				searchLabel.textContent = "Search by " + title + " by " + artist;
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	});
+}
 
 					// // get processor module
 					// await audioContext.audioWorklet.addModule("./linear-pcm-processor.js");
@@ -95,71 +138,6 @@ async function getResponse() {
 					// 	chunks.push(samples); 
 					// 	recordingLength += samples.length;
 					// }
-
-					// get recorder
-					recorder = audioContext.createScriptProcessor.call(audioContext, 2048, 1, 1)
-
-
-					// add event listener for when the recorder has data
-					recorder.onaudioprocess = function(event){
-						const samples = event.inputBuffer.getChannelData(0);
-				
-						// we clone the samples
-						leftChannel.push(new Float32Array(samples));
-				
-						recordingLength += 2048;
-					};
-
-					
-				})
-				.catch( (err) => {console.error(`getUserMedia error: ${err}`);} );
-		
-		} else {
-			console.log("getUserMedia not supported on this browser");
-		}
-	}
-
-
-	// begin recording
-	recorder.connect(audioContext.destination);
-
-
-	getAudioData().then( async function (base64Str) {
-		// set up API call
-		const url = 'https://shazam.p.rapidapi.com/songs/v2/detect';
-		const options = {
-			method: 'POST',
-			headers: {
-				'content-type': 'text/plain',
-				'X-RapidAPI-Key': '0bfb0321bbmsh8e25be16e31863dp15994cjsnc481a9a41b94',
-				'X-RapidAPI-Host': 'shazam.p.rapidapi.com'
-			},
-			body: base64Str
-		};
-
-		try {
-			const response = await fetch(url, options);
-			const result = await response.text();
-		
-			console.log(result);
-
-			const searchLabel = document.getElementById("p1");
-
-			if (result.includes("\"matches\":[]")) {
-				searchLabel.textContent = "Audio not recognized.  Please retry."
-				searchTerm = "";
-			} else {
-				const artist = result.split("trackartist}\":")[1].split("\"")[1];
-				const title = result.split("\"title\":")[1].split("\"")[1];
-
-				searchTerm = title + " " + artist;
-				searchLabel.textContent = "Search by " + title + " by " + artist;
-			}
-		} catch (error) {
-			console.error(error);
-		}
-	});
-}
 
 function redirect() {
 	// https://musescore.com/sheetmusic?text=caribbean%20blue%20enya
