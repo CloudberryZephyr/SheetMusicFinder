@@ -24,7 +24,7 @@ function getAudioData() {
 		setTimeout( function() {
 			recorder.disconnect();
 
-			// const PCM32fSamples = mergeBuffers(chunks, recordingLength);
+			const PCM32fSamples = mergeBuffers(chunks, recordingLength);
 
 			// let charArr = [];
 			
@@ -42,7 +42,7 @@ function getAudioData() {
 			// }
 
 			// convert audio to string for http api request
-			let base64Str = btoa(chunks.join(""));
+			let base64Str = btoa(PCM32fSamples.join(""));
 
 			// resolve promise
 			resolve(base64Str);
