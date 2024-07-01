@@ -30,7 +30,7 @@ class LinearPCMProcessor extends AudioWorkletProcessor {
         // }
  
         this.port.postMessage(input);
-        return true;
+        return false;
     }
   }
   

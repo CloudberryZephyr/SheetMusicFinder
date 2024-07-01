@@ -186,9 +186,29 @@ function redirect() {
 
 // for testing with canned data
 function testCanned() {
-	fetch("gooddata.raw")
+	fetch("badData.txt")
 	.then((result) => result.text())
 	.then( async (data) => {
+		let dataArr = data.split(",\n");
+
+		let arr = [];
+
+		// format audio to pcm signed integer 16bit mono
+		for (let i = 0; i < dataArr.length; i++) {
+			let val = Math.floor(32767 * parseFloat(dataArr[i]));
+			val = Math.min(32767, val);
+			val = Math.max(-32768, val);
+
+			let low = val & 255;
+			let high = (val & (255 << 8)) >> 8;
+
+			arr.push(String.fromCharCode(low));
+			arr.push(String.fromCharCode(high));
+		}
+
+		// convert audio to string for http api request
+		let base64Str = btoa(arr.join(""));
+
 		// do something with "text"
 		const url = 'https://shazam.p.rapidapi.com/songs/v2/detect';
 		const options = {
@@ -198,7 +218,7 @@ function testCanned() {
 				'X-RapidAPI-Key': '0bfb0321bbmsh8e25be16e31863dp15994cjsnc481a9a41b94',
 				'X-RapidAPI-Host': 'shazam.p.rapidapi.com'
 			},
-			body: data
+			body: base64Str
 		};
 
 		try {
