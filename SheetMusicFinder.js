@@ -26,20 +26,20 @@ function getAudioData() {
 
 			const PCM32fSamples = mergeBuffers(chunks, recordingLength);
 
-			// let charArr = [];
+			let charArr = [];
 			
-			// // format audio to pcm signed integer 16bit mono
-			// for (let i = 0; i < PCM32fSamples.length; i++) {
-			// 	let val = Math.floor(32767 * PCM32fSamples[i]);
-			// 	val = Math.min(32767, val);
-			// 	val = Math.max(-32768, val);
+			// format audio to pcm signed integer 16bit mono
+			for (let i = 0; i < PCM32fSamples.length; i++) {
+				let val = Math.floor(32767 * PCM32fSamples[i]);
+				val = Math.min(32767, val);
+				val = Math.max(-32768, val);
 
-			// 	let low = val & 255;
-			// 	let high = (val & (255 << 8)) >> 8;
+				let low = val & 255;
+				let high = (val & (255 << 8)) >> 8;
 
-			// 	charArr.push(String.fromCharCode(low));
-			// 	charArr.push(String.fromCharCode(high));
-			// }
+				charArr.push(String.fromCharCode(low));
+				charArr.push(String.fromCharCode(high));
+			}
 
 			// convert audio to string for http api request
 			let base64Str = btoa(PCM32fSamples.join(""));
@@ -81,23 +81,20 @@ async function getResponse() {
 					// connect the stream to the gain node
 					audioInput.connect(volume);
 
-					// get processor module
-					await audioContext.audioWorklet.addModule("./linear-pcm-processor.js");
-					recorder = new AudioWorkletNode(audioContext, "linear-pcm-processor");
+					// // get processor module
+					// await audioContext.audioWorklet.addModule("./linear-pcm-processor.js");
+					// recorder = new AudioWorkletNode(audioContext, "linear-pcm-processor");
 
-					// we connect the recorder
-					volume.connect(recorder);
+					// // we connect the recorder
+					// volume.connect(recorder);
 					
-					// this will push the data returned from linear-pcm-processor process()
-					// this data is an array of ASCII chars
-					recorder.port.onmessage = (e) => {
-						const samples = new Float32Array(e.data);
-						chunks.push(samples); 
-						recordingLength += samples.length;
-					}
-
-					/*
-						Deprecated code
+					// // this will push the data returned from linear-pcm-processor process()
+					// // this data is an array of ASCII chars
+					// recorder.port.onmessage = (e) => {
+					// 	const samples = new Float32Array(e.data);
+					// 	chunks.push(samples); 
+					// 	recordingLength += samples.length;
+					// }
 
 					// get recorder
 					recorder = audioContext.createScriptProcessor.call(audioContext, bufferSize, 1, 1);
@@ -112,11 +109,6 @@ async function getResponse() {
 				
 						recordingLength += bufferSize;
 					};
-
-					*/
-
-
-
 					
 				})
 				.catch( (err) => {console.error(`getUserMedia error: ${err}`);} );
