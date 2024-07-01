@@ -9,9 +9,9 @@ class LinearPCMProcessor extends AudioWorkletProcessor {
      * sends it in a message to the main thread.
      */
     process(inputList, _outputList, _parameters) {
-        // Assumes the input is mono (1 channel). If there are more channels, they
-        // are ignored
+
         let buffer = [];
+
         const input = inputList[0][0]; // first channel of first input
 
         
