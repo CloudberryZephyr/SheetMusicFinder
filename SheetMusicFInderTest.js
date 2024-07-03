@@ -147,7 +147,7 @@ function redirect() {
 
 // for testing with canned data
 function testCanned() {
-	fetch("baddata.raw")
+	fetch("gooddata.raw")
 	.then((result) => result.text())
 	.then( async (data) => {
 		// do something with "text"
