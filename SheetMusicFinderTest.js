@@ -146,40 +146,40 @@ function redirect() {
 }
 
 // for testing with canned data
-function testCanned() {
-	fetch("gooddata.raw")
-	.then((result) => result.text())
-	.then( async (data) => {
-		// do something with "text"
-		const url = 'https://shazam.p.rapidapi.com/songs/v2/detect';
-		const options = {
-			method: 'POST',
-			headers: {
-				'content-type': 'text/plain',
-				'X-RapidAPI-Key': '0bfb0321bbmsh8e25be16e31863dp15994cjsnc481a9a41b94',
-				'X-RapidAPI-Host': 'shazam.p.rapidapi.com'
-			},
-			body: data
-		};
-		try {
-			const response = await fetch(url, options);
-			const result = await response.text();
+// function testCanned() {
+// 	fetch("gooddata.raw")
+// 	.then((result) => result.text())
+// 	.then( async (data) => {
+// 		// do something with "text"
+// 		const url = 'https://shazam.p.rapidapi.com/songs/v2/detect';
+// 		const options = {
+// 			method: 'POST',
+// 			headers: {
+// 				'content-type': 'text/plain',
+// 				'X-RapidAPI-Key': '0bfb0321bbmsh8e25be16e31863dp15994cjsnc481a9a41b94',
+// 				'X-RapidAPI-Host': 'shazam.p.rapidapi.com'
+// 			},
+// 			body: data
+// 		};
+// 		try {
+// 			const response = await fetch(url, options);
+// 			const result = await response.text();
 		
-			console.log(result);
-		} catch (error) {
-			console.error(error);
-		}
-	})
-	.catch((e) => console.error(e));
-}
+// 			console.log(result);
+// 		} catch (error) {
+// 			console.error(error);
+// 		}
+// 	})
+// 	.catch((e) => console.error(e));
+// }
 
 document.addEventListener("DOMContentLoaded", () => {
 	// set up audio sample trigger
 	const sensebtn = document.getElementById("mic-button");
-	sensebtn.addEventListener("click", getResponse)
-	//sensebtn.addEventListener("click", testCanned)
+	sensebtn.addEventListener("click", getResponse);
+	//sensebtn.addEventListener("click", testCanned);
 
 	// set up musecore search button
 	const searchbtn = document.getElementById("search-button");
-	searchbtn.addEventListener("click", redirect)
+	searchbtn.addEventListener("click", redirect);
 });
