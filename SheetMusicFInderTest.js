@@ -44,7 +44,7 @@ function getAudioData() {
 			let base64Str = btoa(charArr.join(""));
 
 			// resolve promise
-			resolve(base64Str)
+			resolve(base64Str);
 		}, 4000);
 	})
 }
